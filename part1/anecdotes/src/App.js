@@ -21,11 +21,13 @@ const App = () => {
 
   const [selected, setSelected] = useState(0)
   const [anecdoteVotes, setAnecdoteVotes] = useState(Array(anecdotes.length).fill(0))
+  const [highestVote, setHighestVote] = useState(0)
 
+  const HighestVotedAnecdote = () => <p>{anecdotes[anecdoteVotes.findIndex(voteCount => voteCount === highestVote)]}</p>
 
   const selectRandom = () => {
     let random = Math.floor(Math.random() * anecdotes.length)
-    if(random == selected) {
+    if(random === selected) {
       selectRandom()
     } else {
       setSelected(random)
@@ -36,16 +38,22 @@ const App = () => {
     let newArray = [...anecdoteVotes]
     newArray[selected] += 1
     setAnecdoteVotes(newArray)
+    if(newArray[selected] > highestVote) {
+      setHighestVote(newArray[selected])
+    }
   }
 
   return (
     <div>
+      <h1>Daily Anecdotes</h1>
       <div>
         {anecdotes[selected]}
       </div>
       <VoteView votes={anecdoteVotes[selected]} />
       <Button name="next" onClick={selectRandom} />
       <Button name="vote" onClick={voteAnecdote} />
+      <h1>Anecdote of the Day</h1>
+      <HighestVotedAnecdote />
     </div>
     
   )
