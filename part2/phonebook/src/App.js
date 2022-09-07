@@ -10,8 +10,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newFilter, setNewFilter] = useState("");
-  const [operationMessage, setOperationMessage] = useState(undefined);
-  const [isError, setIsError] = useState(false);
+  const [operationMessage, setOperationMessage] = useState();
+  const [error, setError] = useState();
 
   const handleNewName = (event) => setNewName(event.target.value);
   const handleNewNumber = (event) => setNewNumber(event.target.value);
@@ -33,7 +33,7 @@ const App = () => {
         .then((returnedNumber) => {
           setPersons(persons.concat(returnedNumber));
           setOperationMessage(`Added ${returnedNumber.name}`);
-          window.setTimeout(() => setOperationMessage(undefined), 3000);
+          window.setTimeout(() => setOperationMessage(), 3000);
         });
     } else {
       if (
@@ -45,25 +45,26 @@ const App = () => {
         const updatedPerson = { ...oldPerson, number: newNumber };
         contacts
           .update(updatedPerson)
-          .then(response => {
+          .then((response) => {
             setPersons(
               persons.map((person) =>
                 person.id !== oldPerson.id ? person : updatedPerson
               )
             );
             setOperationMessage(`Updated ${updatedPerson.name}'s contact`);
-            window.setTimeout(() => setOperationMessage(undefined), 3000);
           })
-          .catch(error => {
-            setIsError(true);
+          .catch((error) => {
+            setError(error);
             setOperationMessage(
               `Information of ${updatedPerson.name} has already been removed from server`
             );
-            window.setTimeout(() => {
-              setOperationMessage(undefined)
-              setIsError(false)
-            }, 3000);
-          });
+          })
+          .finally(() =>
+            setTimeout(() => {
+              setOperationMessage();
+              setError();
+            }, 3000)
+          );
       }
     }
   };
@@ -79,7 +80,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Notification
         message={operationMessage}
-        messageType={isError ? "errorMessage" : "operationMessage"}
+        messageType={error ? "errorMessage" : "operationMessage"}
       />
       <FilterForm filterChangeHandler={handleNewFilter} filter={newFilter} />
       <h2>Add new Person</h2>
